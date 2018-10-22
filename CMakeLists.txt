@@ -8,4 +8,4 @@ set(FILES
   src/capitalismClass.h
 )
 
-add_executable(main ${FILES})
+add_executable(${PROJECT_NAME} ${FILES})
