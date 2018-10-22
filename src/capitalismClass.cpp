@@ -5,7 +5,9 @@ void capitalismSimulator::simulate()
 {
     for (simulationTime = 1; simulationTime <= simulationLenght; ++simulationTime)
     {
-        std::cout << "Time: " << simulationTime << "/" << simulationLenght <<"\n";
+        bool isPercentageMultipleOfFive = (20*simulationTime%simulationLenght) == 0;
+        if (isPercentageMultipleOfFive)
+          std::cout << "Time: " << simulationTime << "/" << simulationLenght <<"\n";
         simulationIteration();
         printCurrentState();
     }
