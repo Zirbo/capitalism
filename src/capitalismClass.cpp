@@ -26,7 +26,7 @@ long capitalismSimulator::randomNumberBetweenValues(long const& from, long const
     return std::uniform_int_distribution<long>(from, to)(randomNumberGenerator);
 }
 
-size_t capitalismSimulator::pickAPerson(std::set<long> & peopleWhoDidNotExchangeYet)
+size_t capitalismSimulator::pickAPersonAndRemoveItFromTheSet(std::set<long> & peopleWhoDidNotExchangeYet)
 {
   long randomElementInTheSet= randomNumberBetweenValues(0,peopleWhoDidNotExchangeYet.size()-1);
   auto chosenPerson = peopleWhoDidNotExchangeYet.begin();
@@ -46,8 +46,8 @@ void capitalismSimulator::simulationIteration()
 
   while (!peopleWhoDidNotExchangeYet.empty())
   {
-      size_t firstPerson = pickAPerson(peopleWhoDidNotExchangeYet);
-      size_t secondPerson = pickAPerson(peopleWhoDidNotExchangeYet);
+      size_t firstPerson = pickAPersonAndRemoveItFromTheSet(peopleWhoDidNotExchangeYet);
+      size_t secondPerson = pickAPersonAndRemoveItFromTheSet(peopleWhoDidNotExchangeYet);
 
       long amount = randomNumberBetweenValues(-populationCapital[firstPerson], populationCapital[secondPerson]);
       populationCapital[firstPerson]  += amount;

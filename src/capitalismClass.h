@@ -14,7 +14,7 @@ class capitalismSimulator
   void simulationIteration();
   void printCurrentState();
   long randomNumberBetweenValues(long const&, long const&);
-  size_t pickAPerson(std::set<long> & peopleWhoDidNotExchangeYet);
+  size_t pickAPersonAndRemoveItFromTheSet(std::set<long> & peopleWhoDidNotExchangeYet);
 
 public:
   capitalismSimulator(size_t const& numberOfParticles,
