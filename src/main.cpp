@@ -6,7 +6,7 @@ int main( int argc, char **argv )
     if( argc != 4 )
     {
         std::cout << "Insert the number of people, the simulation lenght in time steps, "
-                  << "and the initial capital (all positive integers).\n"
+                  << "and the initial capital per person (all positive integers).\n"
                   << "Check the readme for more information." << std::endl;
         return 1;
     }
@@ -17,13 +17,13 @@ int main( int argc, char **argv )
         return 1;
     }
     long simulationLenght = std::stol(argv[2]);
-    long startingCapital = std::stol(argv[3]);
+    long startingCapitalPerPerson = std::stol(argv[3]);
     std::cout << "You typed " << numberOfPeopleInTheSample << ", "
               << simulationLenght << ", "
-              << startingCapital << ".\n";
+              << startingCapitalPerPerson << ".\n";
 
     capitalismSimulator simulation(numberOfPeopleInTheSample, simulationLenght,
-                                   startingCapital, "output.txt");
+                                   startingCapitalPerPerson, "output.txt");
     simulation.simulate();
     return 0;
 }
