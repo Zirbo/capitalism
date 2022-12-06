@@ -18,6 +18,3 @@ pushd bld
   make -j8
   cp capitalism_simulator ..
 popd
-
-./capitalism_simulator
-xmgrace -nxy results.dat

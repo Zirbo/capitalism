@@ -17,17 +17,26 @@ public:
   Simulator(const Simulator &) = delete;
   Simulator &operator=(const Simulator &) = delete;
 
-  Simulator(int people, double average_capital, double average_skill);
+  Simulator(int people);
   void run(int duration, int sampling);
 
 private:
   std::vector<Person> population;
-  std::ofstream outfile;
   std::mt19937 random_number_generator{std::chrono::system_clock::now().time_since_epoch().count()};
+  std::ofstream sample_file;
+  std::ofstream maxes_file;
+  size_t number_of_bins{100};
+  double bin_size, histogram_size;
+  std::string dirname;
 
   void run_step();
-  double random_number_between(double from, double to);
+  double random_double_between(double from, double to);
+  int random_int_between(int from, int to);
   int random_person(std::set<int> & sample);
+
+  void print(int t);
   void print_sample(int t);
+  void print_histogram(int t);
+  void print_maxes(int t);
 };
 } // namespace capitalism
