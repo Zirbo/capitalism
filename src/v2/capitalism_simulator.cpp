@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <iostream>
+#include <numeric>
 #include <sstream>
 #include <sys/stat.h>
 
@@ -30,6 +31,7 @@ void Simulator::run(int duration, int sampling) {
 
   sample_file.open(dirname + "full_sample.dat");
   maxes_file.open(dirname + "maxes.dat");
+  percentages_file.open(dirname + "percentages.dat");
 
   print(0);
 
@@ -106,16 +108,30 @@ void Simulator::print_sample(int t) {
 }
 
 void Simulator::print_maxes(int t) {
-  std::vector<double> copy;
+  // rank the capitals
+  std::vector<double> capitals;
   for (const auto &i : population) {
-    copy.push_back(i.capital);
+    capitals.push_back(i.capital);
   }
-  sort(copy.begin(), copy.end());
+  sort(capitals.begin(), capitals.end());
+
+  // print the top ten
   maxes_file << t;
-  for (int i = copy.size() - 10; i < copy.size(); ++i) {
-    maxes_file << '\t' << copy[i];
+  for (int i = capitals.size() - 10; i < capitals.size(); ++i) {
+    maxes_file << '\t' << capitals[i];
   }
   maxes_file << '\n';
+
+  // compute and print the total capital of the top 10% and 20%
+  size_t ten_percent = capitals.size() / 10;
+  double m10 = std::accumulate(capitals.begin() + 8 * ten_percent,
+                               capitals.end() - ten_percent, 0.);
+  double m20 =
+      std::accumulate(capitals.begin() + 9 * ten_percent, capitals.end(), m10);
+  m10 /= capitals.size();
+  m20 /= capitals.size();
+
+  percentages_file << t << '\t' << m10 << '\t' << m20 << '\n';
 }
 
 void Simulator::print_histogram(int t) {

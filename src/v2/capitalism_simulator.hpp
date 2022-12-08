@@ -25,7 +25,8 @@ private:
   std::mt19937 random_number_generator{std::chrono::system_clock::now().time_since_epoch().count()};
   std::ofstream sample_file;
   std::ofstream maxes_file;
-  size_t number_of_bins{100};
+  std::ofstream percentages_file;
+  int number_of_bins{100};
   double bin_size, histogram_size;
   std::string dirname;
 
