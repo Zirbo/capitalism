@@ -27,6 +27,7 @@ void Simulator::run(const Config &config) {
 
   top_10_file.open(dirname + "/top_10_file.dat");
   top_20_file.open(dirname + "/top_20_file.dat");
+  capital_distribution_file.open(dirname + "/capital_distribution.dat");
 
   print(0);
 
@@ -39,7 +40,10 @@ void Simulator::run(const Config &config) {
   }
 }
 
-void Simulator::print(int t) { print_percentages(t); }
+void Simulator::print(int t) {
+  print_top20(t);
+  print_composition(t);
+}
 
 void Simulator::run_step() {
   // start with a set containing all the people IDs;
@@ -90,7 +94,7 @@ int Simulator::random_person(std::set<int> &sample) {
   return *chosen;
 }
 
-void Simulator::print_percentages(int t) {
+void Simulator::print_top20(int t) {
   std::vector<Person> ranked_pop{population};
   sort(ranked_pop.begin(), ranked_pop.end());
 
@@ -119,6 +123,20 @@ void Simulator::print_percentages(int t) {
     top_20_file << '\t' << double(beteilung[i]) / ranked_pop.size();
   }
   top_20_file << '\n';
+}
+
+void Simulator::print_composition(int t) {
+  std::vector<double> beteilung(number_of_subsets, 0.);
+  for (const Person &person : population) {
+    beteilung[person.group] += person.capital;
+  }
+
+  capital_distribution_file << t;
+  for (int i = 0; i < number_of_subsets; ++i) {
+    capital_distribution_file << '\t'
+                              << double(beteilung[i]) / population.size();
+  }
+  capital_distribution_file << '\n';
 }
 
 } // namespace capitalism

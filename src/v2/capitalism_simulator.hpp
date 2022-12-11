@@ -34,6 +34,7 @@ private:
 
   std::ofstream top_10_file;
   std::ofstream top_20_file;
+  std::ofstream capital_distribution_file;
 
   void run_step();
   double random_double_between(double from, double to);
@@ -41,6 +42,7 @@ private:
   int random_person(std::set<int> &sample);
 
   void print(int t);
-  void print_percentages(int t);
+  void print_composition(int t);
+  void print_top20(int t);
 };
 } // namespace capitalism
