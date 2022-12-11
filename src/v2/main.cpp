@@ -1,34 +1,45 @@
-#include <iostream>
-#include <unistd.h>
 #include <cstring>
+#include <iostream>
+#include <stdexcept>
+#include <unistd.h>
 
 #include <capitalism_simulator.hpp>
+#include <config_parser.hpp>
 
-static void usage(const char* binary_name) {
-  std::cerr << "\nUsage:\n" << binary_name
-    << " -n *ensemble size* -t *duration* -s *sample_every*\n";
+static void usage(const char *binary_name) {
+  std::cerr << "\nUsage:\n" << binary_name << " -c *config*\n";
   exit(EXIT_FAILURE);
 }
 
-int main(int argc, char* argv[]) {
-  int size, duration, sampling;
+void do_simulation(const char *config_path) {
+  capitalism::Config config(config_path);
+  capitalism::Simulator sim{config};
+  sim.run(config);
+}
+
+int main(int argc, char *argv[]) {
+  char *config_path = nullptr;
   int opt;
-  while ((opt = getopt(argc, argv, "n:t:s:")) != -1) {
-    switch(opt) {
-    case 'n':
-      size = std::atoi(optarg);
+  while ((opt = getopt(argc, argv, "hc:")) != -1) {
+    switch (opt) {
+    case 'c':
+      config_path = optarg;
       break;
-    case 't':
-      duration = std::atoi(optarg);
-      break;
-    case 's':
-      sampling = std::atoi(optarg);
-      break;
+    case 'h':
     default:
       usage(argv[0]);
     }
   }
-  
-  capitalism::Simulator sim{size};
-  sim.run(duration, sampling);
+  if (config_path == nullptr) {
+    usage(argv[0]);
+  }
+
+  try {
+    do_simulation(config_path);
+  } catch (std::runtime_error &e) {
+    std::cerr << e.what() << std::endl;
+    exit(EXIT_FAILURE);
+  }
+
+  exit(EXIT_SUCCESS);
 }

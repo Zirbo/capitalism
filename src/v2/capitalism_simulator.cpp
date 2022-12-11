@@ -1,44 +1,40 @@
 #include <algorithm>
 #include <iostream>
 #include <numeric>
-#include <sstream>
 #include <sys/stat.h>
 
 #include <capitalism_simulator.hpp>
 
 namespace capitalism {
 
-Simulator::Simulator(int people) {
-  population.reserve(people);
+Simulator::Simulator(const Config &config) {
+  dirname = config.output_dir_name;
+  population.reserve(config.population);
 
-  for (int i = 0; i < people; i++) {
+  for (int i = 0; i < config.population; i++) {
     double skill = 1.0;
     population.push_back({1.0, skill});
   }
-  histogram_size = double(people);
+  histogram_size = double(config.population);
   bin_size = histogram_size / number_of_bins;
 }
 
-void Simulator::run(int duration, int sampling) {
+void Simulator::run(const Config &config) {
   // create output dir
-  std::stringstream dirname_ss;
-  dirname_ss << "rundata_n_" << population.size() << "_t_" << duration << "_s_"
-             << sampling << '/';
-  dirname = dirname_ss.str();
   if (mkdir(dirname.c_str(), 0755) != 0) {
     std::runtime_error("Problem while creating the directory.");
   }
 
-  sample_file.open(dirname + "full_sample.dat");
-  maxes_file.open(dirname + "maxes.dat");
-  percentages_file.open(dirname + "percentages.dat");
+  sample_file.open(dirname + "/full_sample.dat");
+  maxes_file.open(dirname + "/maxes.dat");
+  percentages_file.open(dirname + "/percentages.dat");
 
   print(0);
 
-  for (int t = 1; t <= duration; ++t) {
+  for (int t = 1; t <= config.duration; ++t) {
     run_step();
-    if (t % sampling == 0) {
-      std::cout << 100. * double(t) / duration << " %\n";
+    if (t % config.sampling == 0) {
+      std::cout << 100. * double(t) / config.duration << " %\n";
       print(t);
     }
   }
@@ -146,7 +142,7 @@ void Simulator::print_histogram(int t) {
   }
 
   // create output file
-  std::string filename = dirname + "histogram_file_t_";
+  std::string filename = dirname + "/histogram_file_t_";
   filename += std::to_string(t) + ".txt";
   std::ofstream file(filename);
 

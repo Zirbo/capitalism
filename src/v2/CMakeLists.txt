@@ -5,6 +5,7 @@ set (CMAKE_CXX_STANDARD 14)
 
 set(lib_files
   capitalism_simulator.cpp
+  config_parser.cpp
 )
 
 add_library(lib SHARED ${lib_files})

@@ -1,10 +1,12 @@
 #pragma once
 
-#include <vector>
+#include <chrono>
 #include <fstream>
 #include <random>
-#include <chrono>
 #include <set>
+#include <vector>
+
+#include <config_parser.hpp>
 
 namespace capitalism {
 struct Person {
@@ -17,12 +19,13 @@ public:
   Simulator(const Simulator &) = delete;
   Simulator &operator=(const Simulator &) = delete;
 
-  Simulator(int people);
-  void run(int duration, int sampling);
+  Simulator(const Config &config);
+  void run(const Config &config);
 
 private:
   std::vector<Person> population;
-  std::mt19937 random_number_generator{std::chrono::system_clock::now().time_since_epoch().count()};
+  std::mt19937 random_number_generator{
+      std::chrono::system_clock::now().time_since_epoch().count()};
   std::ofstream sample_file;
   std::ofstream maxes_file;
   std::ofstream percentages_file;
@@ -33,7 +36,7 @@ private:
   void run_step();
   double random_double_between(double from, double to);
   int random_int_between(int from, int to);
-  int random_person(std::set<int> & sample);
+  int random_person(std::set<int> &sample);
 
   void print(int t);
   void print_sample(int t);
