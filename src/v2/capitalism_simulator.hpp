@@ -10,7 +10,10 @@
 
 namespace capitalism {
 struct Person {
+  int group;
   double capital{0}, skill{10};
+
+  bool operator<(const Person &other) { return this->capital < other.capital; }
 };
 
 class Simulator {
@@ -24,14 +27,13 @@ public:
 
 private:
   std::vector<Person> population;
+  int number_of_subsets{0};
   std::mt19937 random_number_generator{
       std::chrono::system_clock::now().time_since_epoch().count()};
-  std::ofstream sample_file;
-  std::ofstream maxes_file;
-  std::ofstream percentages_file;
-  int number_of_bins{100};
-  double bin_size, histogram_size;
   std::string dirname;
+
+  std::ofstream top_10_file;
+  std::ofstream top_20_file;
 
   void run_step();
   double random_double_between(double from, double to);
@@ -39,8 +41,6 @@ private:
   int random_person(std::set<int> &sample);
 
   void print(int t);
-  void print_sample(int t);
-  void print_histogram(int t);
-  void print_maxes(int t);
+  void print_percentages(int t);
 };
 } // namespace capitalism

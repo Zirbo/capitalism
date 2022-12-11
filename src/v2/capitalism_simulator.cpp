@@ -8,15 +8,15 @@
 namespace capitalism {
 
 Simulator::Simulator(const Config &config) {
+  number_of_subsets = config.subsets.size();
   dirname = config.output_dir_name;
   population.reserve(config.population);
 
-  for (int i = 0; i < config.population; i++) {
-    double skill = 1.0;
-    population.push_back({1.0, skill});
+  for (const auto &subset : config.subsets) {
+    for (int i = 0; i < subset.size; i++) {
+      population.push_back({subset.group, 1.0, subset.skill});
+    }
   }
-  histogram_size = double(config.population);
-  bin_size = histogram_size / number_of_bins;
 }
 
 void Simulator::run(const Config &config) {
@@ -25,9 +25,8 @@ void Simulator::run(const Config &config) {
     std::runtime_error("Problem while creating the directory.");
   }
 
-  sample_file.open(dirname + "/full_sample.dat");
-  maxes_file.open(dirname + "/maxes.dat");
-  percentages_file.open(dirname + "/percentages.dat");
+  top_10_file.open(dirname + "/top_10_file.dat");
+  top_20_file.open(dirname + "/top_20_file.dat");
 
   print(0);
 
@@ -40,11 +39,7 @@ void Simulator::run(const Config &config) {
   }
 }
 
-void Simulator::print(int t) {
-  print_sample(t);
-  // print_histogram(t);
-  print_maxes(t);
-}
+void Simulator::print(int t) { print_percentages(t); }
 
 void Simulator::run_step() {
   // start with a set containing all the people IDs;
@@ -95,62 +90,35 @@ int Simulator::random_person(std::set<int> &sample) {
   return *chosen;
 }
 
-void Simulator::print_sample(int t) {
-  sample_file << t;
-  for (const auto &i : population) {
-    sample_file << '\t' << i.capital;
-  }
-  sample_file << '\n';
-}
-
-void Simulator::print_maxes(int t) {
-  // rank the capitals
-  std::vector<double> capitals;
-  for (const auto &i : population) {
-    capitals.push_back(i.capital);
-  }
-  sort(capitals.begin(), capitals.end());
-
-  // print the top ten
-  maxes_file << t;
-  for (int i = capitals.size() - 10; i < capitals.size(); ++i) {
-    maxes_file << '\t' << capitals[i];
-  }
-  maxes_file << '\n';
+void Simulator::print_percentages(int t) {
+  std::vector<Person> ranked_pop{population};
+  sort(ranked_pop.begin(), ranked_pop.end());
 
   // compute and print the total capital of the top 10% and 20%
-  size_t ten_percent = capitals.size() / 10;
-  double m10 = std::accumulate(capitals.begin() + 8 * ten_percent,
-                               capitals.end() - ten_percent, 0.);
-  double m20 =
-      std::accumulate(capitals.begin() + 9 * ten_percent, capitals.end(), m10);
-  m10 /= capitals.size();
-  m20 /= capitals.size();
-
-  percentages_file << t << '\t' << m10 << '\t' << m20 << '\n';
-}
-
-void Simulator::print_histogram(int t) {
-  // compute histogram
-  std::vector<int> bins(number_of_bins, 0.);
-  for (const auto &i : population) {
-    int bin = int(i.capital / bin_size);
-    if (bin > number_of_bins) {
-      bin = number_of_bins - 1;
-    }
-    bins[bin]++;
+  size_t ten_percent = ranked_pop.size() / 10;
+  double total_capital = 0.;
+  std::vector<int> beteilung(number_of_subsets, 0);
+  for (auto it = ranked_pop.cbegin() + 9 * ten_percent; it != ranked_pop.cend();
+       it++) {
+    total_capital += it->capital;
+    beteilung[it->group]++;
   }
-
-  // create output file
-  std::string filename = dirname + "/histogram_file_t_";
-  filename += std::to_string(t) + ".txt";
-  std::ofstream file(filename);
-
-  // output histogram
-  for (int i = 0; i < number_of_bins; ++i) {
-    file << bin_size * i << '\t' << double(bins[i]) / population.size() << '\n';
+  top_10_file << t << '\t' << total_capital / ranked_pop.size();
+  for (int i = 0; i < number_of_subsets; ++i) {
+    top_10_file << '\t' << double(beteilung[i]) / ranked_pop.size();
   }
-  file << number_of_bins * bin_size << '\t' << 0 << '\n';
+  top_10_file << '\n';
+
+  for (auto it = ranked_pop.cbegin() + 8 * ten_percent;
+       it != ranked_pop.cend() - ten_percent; it++) {
+    total_capital += it->capital;
+    beteilung[it->group]++;
+  }
+  top_20_file << t << '\t' << total_capital / ranked_pop.size();
+  for (int i = 0; i < number_of_subsets; ++i) {
+    top_20_file << '\t' << double(beteilung[i]) / ranked_pop.size();
+  }
+  top_20_file << '\n';
 }
 
 } // namespace capitalism

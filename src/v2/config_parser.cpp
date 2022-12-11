@@ -14,7 +14,6 @@ void Config::parse(const char *path) {
 
   read_config(openconfig);
   validate();
-  print();
 }
 
 static void trim(std::string &str) {
@@ -135,31 +134,31 @@ void Config::validate_subsets() {
     throw std::runtime_error("missing [subsets] section");
   }
 
-  int subsets_total = 0;
+  int subsets_number = 0;
+  int subsets_total_size = 0;
   for (const auto &sub_set : subsects_section->second) {
-    std::string name = sub_set.first;
+    Subset new_sub;
+    new_sub.group = subsets_number;
+    std::cout << "Representing " << sub_set.first << " as " << subsets_number
+              << std ::endl;
+    subsets_number++;
     const auto &csl = sub_set.second;
     auto comma = csl.find_first_of(',');
     if (comma == std::string::npos) {
       throw std::runtime_error("no comma found in subset");
     }
-    int sub_pop = std::atoi(csl.substr(0, comma).c_str());
-    int sub_skill = std::atoi(csl.substr(comma + 1).c_str());
-    subsets[name] = std::make_pair(sub_pop, sub_skill);
-    subsets_total += sub_pop;
+    new_sub.size = std::atoi(csl.substr(0, comma).c_str());
+    new_sub.skill = std::atof(csl.substr(comma + 1).c_str());
+    subsets_total_size += new_sub.size;
+    subsets.push_back(new_sub);
   }
 
-  if (subsets_total != population) {
+  if (subsets_total_size != population) {
     throw std::runtime_error("the subsets don't add to the total pop");
   }
-}
 
-void Config::print() {
-  for (const auto &it : config) {
-    std::cout << "SECTION: " << it.first;
-    for (const auto &iq : it.second) {
-      std::cout << iq.first << ": " << iq.second;
-    }
+  if (subsets_number != subsects_section->second.size()) {
+    throw std::runtime_error("not all subsets traversed");
   }
 }
 

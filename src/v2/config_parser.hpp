@@ -2,10 +2,16 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 namespace capitalism {
 
 typedef std::map<std::string, std::string> Config_section;
+struct Subset {
+  int group;
+  int size;
+  double skill;
+};
 
 class Config {
 public:
@@ -17,7 +23,7 @@ public:
   int population;
   int duration;
   int sampling;
-  std::map<std::string, std::pair<int, int>> subsets;
+  std::vector<Subset> subsets;
 
 protected:
   std::map<std::string, Config_section> config;
@@ -25,7 +31,6 @@ protected:
   void validate();
   void validate_main();
   void validate_subsets();
-  void print();
 };
 
 } // namespace capitalism
